@@ -2,6 +2,8 @@ console.log("test");
 
 let productData = [];
 const productWrap = document.querySelector(".productWrap");
+const searchResultText = document.querySelector("#searchResult-text");
+
 //0.初始化
 function init() {
   getProductData();
@@ -22,29 +24,31 @@ function getProductData() {
     });
 }
 //2.渲染畫面
-//const allProducts = document.querySelector(".allProducts");
+const allProducts = document.querySelector(".allProducts");
+function combineProductHTMLItem(item) {
+  return ` <li class="productCard">
+<h4 class="productType">新品</h4>
+<img
+  src="${item.images}"
+  alt=""
+/>
+<a href="#" class="addCardBtn js-addCart" data-id="${item.id}">加入購物車</a>
+<h3>${item.title}</h3>
+<del class="originPrice">NT$${item.origin_price}</del>
+<p class="nowPrice">NT$${item.price}</p>
+</li>`;
+}
 function renderProduct(data) {
   let str = "";
   data.forEach((item) => {
-    str += ` <li class="productCard">
-    <h4 class="productType">新品</h4>
-    <img
-      src="${item.images}"
-      alt=""
-    />
-    <a href="#" class="addCardBtn">加入購物車</a>
-    <h3>${item.title}</h3>
-    <del class="originPrice">NT$${item.origin_price}</del>
-    <p class="nowPrice">NT$${item.price}</p>
-  </li>`;
+    str += combineProductHTMLItem(item);
   });
-  //allProducts.setAttribute("selected", "selected");
+  allProducts.setAttribute("selected", "selected");
   productWrap.innerHTML = str;
   searchResultText.innerHTML = `本次搜尋共 ${data.length}筆資料`;
 }
 //2-2 下拉式選單篩選
 const productSelect = document.querySelector(".productSelect");
-const searchResultText = document.querySelector("#searchResult-text");
 productSelect.addEventListener("change", (e) => {
   //console.log(e.target.value);
   const currValue = e.target.value;
