@@ -35,8 +35,8 @@ function combineProductHTMLItem(item) {
 />
 <a href="#"  class="js-addCart" data-id="${item.id}">加入購物車</a>
 <h3>${item.title}</h3>
-<del class="originPrice">NT$${item.origin_price}</del>
-<p class="nowPrice">NT$${item.price}</p>
+<del class="originPrice">NT$${toThousands(item.origin_price)}</del>
+<p class="nowPrice">NT$${toThousands(item.price)}</p>
 </li>`;
 }
 //2.渲染畫面
@@ -78,7 +78,9 @@ function getCartList() {
     .then(function (res) {
       cartData = res.data.carts;
       //console.log(res.data.finalTotal);
-      document.querySelector(".js-total").textContent = res.data.finalTotal;
+      document.querySelector(".js-total").textContent = toThousands(
+        res.data.finalTotal
+      );
       //console.log(cartData);
       let str = "";
       cartData.forEach((item) => {
@@ -89,9 +91,9 @@ function getCartList() {
             <p>${item.product.title}</p>
           </div>
         </td>
-        <td>NT$${item.product.price}</td>
+        <td>NT$${toThousands(item.product.price)}</td>
         <td>${item.quantity}</td>
-        <td>NT$${item.product.price * item.quantity}</td>
+        <td>NT$${toThousands(item.product.price * item.quantity)}</td>
         <td class="discardBtn">
           <a href="#" class="material-icons" data-id="${
             item.id
@@ -160,7 +162,6 @@ discardAllBtn.addEventListener("click", (e) => {
     });
 });
 //4-2刪除購物車單筆產品
-
 shoppingCartTableList.addEventListener("click", (e) => {
   e.preventDefault();
   //console.log(e.target);
@@ -178,7 +179,7 @@ shoppingCartTableList.addEventListener("click", (e) => {
     )
     .then((res) => {
       getCartList();
-      alert("deleted this `${cartItemName}` item completely");
+      alert(`deleted this ${cartItemName} item completely`);
     });
 });
 
@@ -281,3 +282,10 @@ orderInfoBtn.addEventListener("click", (e) => {
       getCartList();
     });
 });
+
+// util js、元件
+function toThousands(x) {
+  let parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+}
