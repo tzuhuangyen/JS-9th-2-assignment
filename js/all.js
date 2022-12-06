@@ -77,6 +77,8 @@ function getCartList() {
     )
     .then(function (res) {
       cartData = res.data.carts;
+      //console.log(res.data.finalTotal);
+      document.querySelector(".js-total").textContent = res.data.finalTotal;
       //console.log(cartData);
       let str = "";
       cartData.forEach((item) => {
@@ -177,5 +179,105 @@ shoppingCartTableList.addEventListener("click", (e) => {
     .then((res) => {
       getCartList();
       alert("deleted this `${cartItemName}` item completely");
+    });
+});
+
+//5表單送出 產生訂單
+const customerName = document.querySelector("#customerName");
+const customerPhone = document.querySelector("#customerPhone");
+const customerEmail = document.querySelector("#customerEmail");
+const customerAddress = document.querySelector("#customerAddress");
+const tradeWay = document.querySelector("#tradeWay");
+const orderInfoBtn = document.querySelector(".orderInfo-btn");
+
+orderInfoBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (cartData.length === 0) {
+    alert("your cart is empty, 快去買起乃");
+    return;
+  } else if (
+    customerName.value === "" ||
+    customerPhone.value === "" ||
+    customerEmail.value === "" ||
+    customerAddress.value === ""
+  ) {
+    alert("資料沒有填寫完整");
+    return;
+  }
+  const constraints = {
+    name: {
+      presence: {
+        message: "是必填欄位",
+      },
+    },
+    tel: {
+      presence: {
+        message: "是必填欄位",
+      },
+      length: {
+        minimum: 8,
+        message: "需至少 8 碼",
+      },
+    },
+    Email: {
+      presence: {
+        message: "是必填欄位",
+      },
+      email: {
+        message: "格式錯誤",
+      },
+    },
+    customerAddress: {
+      presence: {
+        message: "是必填欄位",
+      },
+    },
+    tradeWay: {
+      presence: {
+        message: "是必填欄位",
+      },
+    },
+  };
+  const orderInfoForm = document.querySelector(".orderInfo-form");
+  const inputs = document.querySelectorAll("input[name],select[name]");
+  //確認表單填寫資料符合格式規範
+  let errors = validate(orderInfoForm, constraints) || "";
+
+  if (errors) {
+    Object.keys(errors).forEach(function (keys) {
+      document.querySelector(`[data-message="${keys}"]`).textContent =
+        errors[keys];
+    });
+    // 助教註解：當進入 if(errors) 代表表單驗證沒通過，
+    // 所以這裡要使用 return 跳出函式才不會繼續往後跑然後出錯
+    return;
+  }
+  axios
+    .post(
+      `https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/orders`,
+      {
+        data: {
+          user: {
+            // 助教註解：這裡再使用 value 取值才會是當下表單的值
+            name: customerName.value,
+            tel: customerPhone.value,
+            email: customerEmail.value,
+            address: customerAddress.value,
+            payment: tradeWay.value,
+          },
+        },
+      }
+    )
+    .then((res) => {
+      alert("訂單送出成功");
+
+      // 助教註解：清空 input
+      customerName.value = "";
+      customerPhone.value = "";
+      customerEmail.value = "";
+      customerAddress.value = "";
+      tradeWay.value = "ATM";
+
+      getCartList();
     });
 });
