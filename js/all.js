@@ -91,7 +91,9 @@ function getCartList() {
         <td>${item.quantity}</td>
         <td>NT$${item.product.price * item.quantity}</td>
         <td class="discardBtn">
-          <a href="#" class="material-icons"> clear </a>
+          <a href="#" class="material-icons" data-id="${
+            item.id
+          }" data-productTitle="${item.product.title}"> clear </a>
         </td>
       </tr>`;
       });
@@ -137,5 +139,43 @@ productWrap.addEventListener("click", (e) => {
       console.log(res);
       alert("加入購物車");
       getCartList();
+    });
+});
+//4刪除全部購物車產品
+const discardAllBtn = document.querySelector(".discardAllBtn");
+discardAllBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (cartData.length === 0) {
+    alert("your cart is empty");
+  }
+  axios
+    .delete(
+      `https://livejs-api.hexschool.io/api/livejs/v1/customer/yaqn09/carts`
+    )
+    .then((res) => {
+      getCartList();
+      alert("deleted completely");
+    });
+});
+//4-2刪除購物車單筆產品
+
+shoppingCartTableList.addEventListener("click", (e) => {
+  e.preventDefault();
+  //console.log(e.target);
+  let cartItemId = e.target.getAttribute("data-id");
+  let cartItemName = e.target.getAttribute("data-productTitle");
+  console.log(cartItemName);
+  console.log(cartItemId);
+  if (cartItemId == null) {
+    alert("請點選要刪除的商品x按鈕");
+    return;
+  }
+  axios
+    .delete(
+      `https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/carts/${cartItemId}`
+    )
+    .then((res) => {
+      getCartList();
+      alert("deleted this `${cartItemName}` item completely");
     });
 });
