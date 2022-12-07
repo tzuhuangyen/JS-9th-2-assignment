@@ -70,6 +70,7 @@ productSelect.addEventListener("change", (e) => {
 //3.取得購物車列表
 const shoppingCartTableList = document.querySelector(".shoppingCart-tableList");
 let cartData = [];
+
 function getCartList() {
   axios
     .get(
@@ -77,37 +78,40 @@ function getCartList() {
     )
     .then(function (res) {
       cartData = res.data.carts;
-      //console.log(res.data.finalTotal);
-      document.querySelector(".js-total").textContent = toThousands(
-        res.data.finalTotal
-      );
-      //console.log(cartData);
-      let str = "";
-      cartData.forEach((item) => {
-        str += `<tr>
-        <td>
-          <div class="cardItem-title">
-            <img src="${item.product.images}" alt="" />
-            <p>${item.product.title}</p>
-          </div>
-        </td>
-        <td>NT$${toThousands(item.product.price)}</td>
-        <td>${item.quantity}</td>
-        <td>NT$${toThousands(item.product.price * item.quantity)}</td>
-        <td class="discardBtn">
-          <a href="#" class="material-icons" data-id="${
-            item.id
-          }" data-productTitle="${item.product.title}"> clear </a>
-        </td>
-      </tr>`;
-      });
-      shoppingCartTableList.innerHTML = str;
     })
     .catch(function (error) {
-      console.log(error);
+      alert = "error";
     });
 }
 getCartList();
+//3-1
+function renderCarts(cartData, finalTotal) {
+  //console.log(cartData);
+  let str = "";
+  cartData.forEach((item) => {
+    str += `<tr>
+  <td>
+    <div class="cardItem-title">
+      <img src="${item.product.images}" alt="" />
+      <p>${item.product.title}</p>
+    </div>
+  </td>
+  <td>NT$${toThousands(item.product.price)}</td>
+  <td>${item.quantity}</td>
+  <td>NT$${toThousands(item.product.price * item.quantity)}</td>
+  <td class="discardBtn">
+    <a href="#" class="material-icons" data-id="${
+      item.id
+    }" data-productTitle="${item.product.title}"> clear </a>
+  </td>
+</tr>`;
+  });
+  shoppingCartTableList.innerHTML = str;
+  //console.log(res.data.finalTotal);
+  document.querySelector(".js-total").textContent = toThousands(
+    res.data.finalTotal
+  );
+}
 //3-2 加入購物車按鈕 addEventListener
 productWrap.addEventListener("click", (e) => {
   e.preventDefault();
@@ -142,7 +146,7 @@ productWrap.addEventListener("click", (e) => {
     .then((res) => {
       console.log(res);
       alert("加入購物車");
-      getCartList();
+      renderCarts(res.data.carts, res.data.finalTotal);
     });
 });
 //4刪除全部購物車產品

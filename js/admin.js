@@ -12,69 +12,67 @@ function getOrderList() {
   axios
     .get(
       `https://livejs-api.hexschool.io/api/livejs/v1/admin/${api_path}/orders`,
-      {
-        headers: {
-          Authorization: token,
-        },
-      }
+      config
     )
     .then((res) => {
       orderData = res.data.orders;
       //console.log(res.data);
       //console.log(orderData);
-      let str = "";
-      orderData.forEach((item) => {
-        //組時間字串
-        const timeStamp = new Date(item.createdAt * 1000);
-        const orderTime = `${timeStamp.getFullYear()}/${
-          timeStamp.getMonth() + 1
-        }/${timeStamp.getDate()}`;
-        console.log(orderTime);
-        //組同筆訂單但多個品項字串
-        let productStr = "";
-        item.products.forEach((productItem) => {
-          productStr += `<p>${productItem.title}x${productItem.quantity}</p>`;
-        });
-
-        // 判斷訂單處理狀態
-        let orderStatus = "";
-        if (item.paid == true) {
-          orderStatus = "已處理";
-        } else {
-          orderStatus = "未處理";
-        }
-        //組全部訂單字串
-        str += ` <tr>
-        <td>${item.id}</td>
-        <td>
-          <p>${item.user.name}</p>
-          <p>${item.user.tel}</p>
-        </td>
-        <td>${item.user.address}</td>
-        <td>${item.user.email}</td>
-        <td>
-          ${productStr}
-        </td>
-        <td>${orderTime}</td>
-        <td class=" js-oderStatus">
-          <a href="#" class="orderStatus" data-id="${item.id}" data-status="${item.paid}" >${orderStatus}</a>
-        </td>
-        <td>
-          <input
-            type="button"
-            class="delSingleOrder-Btn js-oderDelete"
-            data-id="${item.id}"
-            value="刪除"
-          />
-        </td>
-      </tr>`;
-      });
-      orderList.innerHTML = str;
+      renderOderList();
       renderC3();
       renderC3_lv2();
     });
 }
+function renderOderList() {
+  let str = "";
+  orderData.forEach((item) => {
+    //組時間字串
+    const timeStamp = new Date(item.createdAt * 1000);
+    const orderTime = `${timeStamp.getFullYear()}/${
+      timeStamp.getMonth() + 1
+    }/${timeStamp.getDate()}`;
+    console.log(orderTime);
+    //組同筆訂單但多個品項字串
+    let productStr = "";
+    item.products.forEach((productItem) => {
+      productStr += `<p>${productItem.title}x${productItem.quantity}</p>`;
+    });
 
+    // 判斷訂單處理狀態
+    let orderStatus = "";
+    if (item.paid == true) {
+      orderStatus = "已處理";
+    } else {
+      orderStatus = "未處理";
+    }
+    //組全部訂單字串
+    str += ` <tr>
+    <td>${item.id}</td>
+    <td>
+      <p>${item.user.name}</p>
+      <p>${item.user.tel}</p>
+    </td>
+    <td>${item.user.address}</td>
+    <td>${item.user.email}</td>
+    <td>
+      ${productStr}
+    </td>
+    <td>${orderTime}</td>
+    <td class=" js-oderStatus">
+      <a href="#" class="orderStatus" data-id="${item.id}" data-status="${item.paid}" >${orderStatus}</a>
+    </td>
+    <td>
+      <input
+        type="button"
+        class="delSingleOrder-Btn js-oderDelete"
+        data-id="${item.id}"
+        value="刪除"
+      />
+    </td>
+  </tr>`;
+  });
+  orderList.innerHTML = str;
+}
 //2-1.綁定監聽 確認點擊刪除＆變更按鈕
 orderList.addEventListener("click", (e) => {
   e.preventDefault();
@@ -110,11 +108,7 @@ function changeOrderStatus(status, id) {
           paid: newStatus,
         },
       },
-      {
-        headers: {
-          authorization: token,
-        },
-      }
+      config
     )
     .then((res) => {
       alert("changed has been done");
@@ -127,11 +121,7 @@ function deleteOrderItem(id) {
   axios
     .delete(
       `https://livejs-api.hexschool.io/api/livejs/v1/admin/${api_path}/orders/${id}`,
-      {
-        headers: {
-          Authorization: token,
-        },
-      }
+      config
     )
     .then((res) => {
       alert("deleted this order");
@@ -149,11 +139,7 @@ function deleteAllOrder() {
   axios
     .delete(
       `https://livejs-api.hexschool.io/api/livejs/v1/admin/${api_path}/orders`,
-      {
-        headers: {
-          Authorization: token,
-        },
-      }
+      config
     )
     .then((res) => {
       alert("deleted all orders");
@@ -206,6 +192,7 @@ function renderC3() {
   });
 }
 //3-2.level2-c3 chart
+
 function soreOrders() {
   //取得要呈現在圖表的{物件} 資料收集
   let obj = {};
@@ -219,6 +206,7 @@ function soreOrders() {
     });
   });
   console.log(obj);
+
   //將物件轉為陣列 object.keys(obj)
   let originAry = Object.keys(obj);
   console.log(originAry);
@@ -246,15 +234,22 @@ function soreOrders() {
     });
     rankSortAry.splice(3, rankSortAry.length - 1);
     rankSortAry.push("其他", otherTotal);
+    console.log(rankSortAry);
+    return rankSortAry;
+    renderC3_lv2(rankSortAry);
   }
 }
-
+soreOrders();
 function renderC3_lv2() {
+  // chart.load({
+  //   unload: true,
+  //   columns: soreOrders(),
+  // });
   let chart = c3.generate({
     bindto: "#chart2", // HTML 元素綁定
     data: {
       type: "pie",
-      columns: soreOrders(),
+      columns: data,
       colors: {
         pattern: ["#DACBFF", "#9D7FEA", "#5434A7", "#301E5F"],
       },
