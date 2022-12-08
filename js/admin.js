@@ -7,7 +7,7 @@ function init() {
 }
 init();
 
-//1.取得訂單列表＋渲染列表
+//1-1.取得訂單列表
 function getOrderList() {
   axios
     .get(
@@ -20,9 +20,10 @@ function getOrderList() {
       //console.log(orderData);
       renderOderList();
       renderC3();
-      renderC3_lv2();
+      //renderC3_lv2();
     });
 }
+//1-2渲染列表
 function renderOderList() {
   let str = "";
   orderData.forEach((item) => {
@@ -233,26 +234,26 @@ function soreOrders() {
       }
     });
     rankSortAry.splice(3, rankSortAry.length - 1);
-    rankSortAry.push("其他", otherTotal);
+    rankSortAry.push(["其他", otherTotal]);
     console.log(rankSortAry);
-    return rankSortAry;
-    renderC3_lv2(rankSortAry);
   }
+  return rankSortAry;
+  //renderC3_lv2(rankSortAry);
 }
 soreOrders();
-function renderC3_lv2() {
-  // chart.load({
-  //   unload: true,
-  //   columns: soreOrders(),
-  // });
-  let chart = c3.generate({
-    bindto: "#chart2", // HTML 元素綁定
-    data: {
-      type: "pie",
-      columns: data,
-      colors: {
-        pattern: ["#DACBFF", "#9D7FEA", "#5434A7", "#301E5F"],
-      },
-    },
-  });
-}
+// function renderC3_lv2() {
+//   // chart.load({
+//   //   unload: true,
+//   //   columns: soreOrders(),
+//   // });
+//   let chart = c3.generate({
+//     bindto: "#chart2", // HTML 元素綁定
+//     data: {
+//       type: "pie",
+//       columns: data,
+//       colors: {
+//         pattern: ["#DACBFF", "#9D7FEA", "#5434A7", "#301E5F"],
+//       },
+//     },
+//   });
+// }

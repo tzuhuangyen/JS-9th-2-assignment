@@ -1,12 +1,15 @@
 console.log("test");
 
 let productData = [];
+let cartData = [];
+let finalTotal;
 const productWrap = document.querySelector(".productWrap");
 const searchResultText = document.querySelector("#searchResult-text");
 
 //0.初始化
-function init() {
+async function init() {
   getProductData();
+  await getCartList(cartData, finalTotal);
 }
 init();
 //1.取得外部資料
@@ -69,20 +72,22 @@ productSelect.addEventListener("change", (e) => {
 
 //3.取得購物車列表
 const shoppingCartTableList = document.querySelector(".shoppingCart-tableList");
-let cartData = [];
 
-function getCartList() {
-  axios
+async function getCartList() {
+  await axios
     .get(
       `https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/carts`
     )
     .then(function (res) {
+      console.log(cartData);
       cartData = res.data.carts;
+      finalTotal = res.data.finalTotal;
     })
     .catch(function (error) {
       alert = "error";
     });
 }
+
 getCartList();
 //3-1
 function renderCarts(cartData, finalTotal) {
@@ -108,9 +113,7 @@ function renderCarts(cartData, finalTotal) {
   });
   shoppingCartTableList.innerHTML = str;
   //console.log(res.data.finalTotal);
-  document.querySelector(".js-total").textContent = toThousands(
-    res.data.finalTotal
-  );
+  document.querySelector(".js-total").textContent = toThousands(finalTotal);
 }
 //3-2 加入購物車按鈕 addEventListener
 productWrap.addEventListener("click", (e) => {
@@ -146,7 +149,7 @@ productWrap.addEventListener("click", (e) => {
     .then((res) => {
       console.log(res);
       alert("加入購物車");
-      renderCarts(res.data.carts, res.data.finalTotal);
+      renderCarts(cartData, finalTotal);
     });
 });
 //4刪除全部購物車產品
@@ -182,7 +185,7 @@ shoppingCartTableList.addEventListener("click", (e) => {
       `https://livejs-api.hexschool.io/api/livejs/v1/customer/${api_path}/carts/${cartItemId}`
     )
     .then((res) => {
-      getCartList();
+      getCartList(cartData, finalTotal);
       alert(`deleted this ${cartItemName} item completely`);
     });
 });
